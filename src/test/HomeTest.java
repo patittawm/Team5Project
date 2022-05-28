@@ -1,3 +1,4 @@
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -11,69 +12,53 @@ import org.testng.annotations.Test;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class HomeTest {
+public class HomeTest { // ####### IN-1 to IN-3 from solution Kuba
     WebDriver driver;
 
     @BeforeMethod
     public void setUp(){
-        System.setProperty("webdriver.chrome.driver", "/Users/patittawut/Documents/Selenium-workspace/Driver/chromedriver");
+        //System.setProperty("webdriver.chrome.driver", "/Users/patittawut/Documents/Selenium-workspace/Driver/chromedriver");
+        WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+        //Sign in as user
+        driver.get("https://interview-prep-test.herokuapp.com/");
+        driver.findElement(By.xpath("//input[@placeholder='Enter Username']")).sendKeys("test@yahoo.com");
+        driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys("test123");
+        driver.findElement(By.xpath("//button[@type='submit']")).click();
     }
 
-    @Test(testName = "IN-1",description = "open url, login")
-
-
-
+    @Test(testName = "IN-1",description = "open url, login, Title")
     public void pageTitle(){
-        //1. Open url
-        driver.get("https://interview-prep-test.herokuapp.com/");
         // 2. Verify page title - expected "Interview App"
         Assert.assertEquals(driver.getTitle(), "Interview App");
-        // 3. Login using username test@yahoo.com
-        //                password test123
-        driver.findElement(By.xpath("//input[@placeholder='Enter Username']")).sendKeys("test@yahoo.com");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys("test123");
-        driver.findElement(By.xpath("//button[@type='submit']")).click();
     }
 
-    @Test(testName = "IN-2", description = "verify Sign out button")
-    // 2. Verify Manage Access button is not present
+    @Test(testName = "IN-2 - Test Sign Out button", description = "Testing visibility of the Sign out button")
     public void verifySignOutBtn() {
-        driver.get("https://interview-prep-test.herokuapp.com/");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Username']")).sendKeys("test@yahoo.com");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys("test123");
-        driver.findElement(By.xpath("//button[@type='submit']")).click();
         // 1. Verify Sign out button is present
-        driver.findElement(By.xpath("//u[contains(text(),'Sign out')]")).isDisplayed();
+        //driver.findElement(By.xpath("//u[contains(text(),'Sign out')]")).isDisplayed();
+        Assert.assertTrue(driver.findElement(By.xpath("//nav//a/u[text()='Sign out']")).isEnabled());
+    }
+    @Test(testName = "IN-2 - Test Manage Access button", description = "Testing button is not visible")
+    public void verifySignOutBtn2() {
+       List<WebElement> elementList = driver.findElements(By.xpath("//*[text()='Manage Access']"));
+        Assert.assertEquals(elementList.size(), 0);
     }
 
-    @Test(testName = "IN-3", description = "verify all dashboards are present")
+    @Test(testName = "IN-3 - Default dashboards", description = "Validate 3 dashboards are present")
     public void verifyBtns(){
-        driver.get("https://interview-prep-test.herokuapp.com/");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Username']")).sendKeys("test@yahoo.com");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys("test123");
-        driver.findElement(By.xpath("//button[@type='submit']")).click();
-        // 1. Verify 3 dashboards present:
-        // - All Topics
-        // - Coding
-        // - Soft skills
-        List<WebElement> dashboard = driver.findElements(By.xpath("//*[text()='All Topics']"));
-        dashboard.forEach((options -> System.out.println(options.isDisplayed())));
+        // 1. Verify 3 dashboards present:- All Topics- Coding- Soft skills
+        String[] data = {"All Topics", "Coding", "Soft skills"};
+        for(String text: data){
+            Assert.assertTrue(driver.findElement(
+                    By.xpath("//form[@class='form-inline']//button[text()='" + text + "']")).isEnabled());
+        }
     }
 
     @Test(testName = "IN-4")
     public void addTest() throws InterruptedException {
-        driver.get("https://interview-prep-test.herokuapp.com/");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Username']")).sendKeys("test@yahoo.com");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys("test123");
-        driver.findElement(By.xpath("//button[@type='submit']")).click();
-        //Add a statement in Do's field using letters & numbers only
-        driver.findElement(By.cssSelector("div[class='col-md-7 do'] button[class='btn btn-success badge-pill newbtn mb-3']")).click();
-        driver.findElement(By.id("inputArea1")).sendKeys("test team 5");
-        driver.findElement(By.cssSelector("button[class='btn btn-outline-white btn-sm btn-success']")).click();
-        driver.findElement(By.xpath("(//div[@class='anyClass'])[1]/div[last()]//div/span/button")).click();
         //Add a statement in Dont's field using letters & numbers only
         driver.findElement(By.xpath("//div[@class='col-md-3 dont']//button")).click();
         driver.findElement(By.id("inputArea2")).sendKeys("test team 5 Don't");
@@ -83,10 +68,6 @@ public class HomeTest {
 
     @Test(testName = "IN-5")
     public void dashboardQuestion(){
-        driver.get("https://interview-prep-test.herokuapp.com/");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Username']")).sendKeys("test@yahoo.com");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys("test123");
-        driver.findElement(By.xpath("//button[@type='submit']")).click();
         //Add a question to dashboard accepting only letters, numbers & special characters
         driver.findElement(By.className("codeChallengeImg")).click();
         driver.findElement(By.xpath("//button[text()='Enter new question ']")).click();
@@ -109,10 +90,6 @@ public class HomeTest {
 
     @Test(testName = "IN-6")
     public void modifyDashQues(){
-        driver.get("https://interview-prep-test.herokuapp.com/");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Username']")).sendKeys("test@yahoo.com");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys("test123");
-        driver.findElement(By.xpath("//button[@type='submit']")).click();
 
         driver.findElement(By.xpath("//button[text()='Soft skills']")).click();
         driver.findElement(By.xpath("//button[text()='Enter new question ']")).click();
@@ -129,10 +106,6 @@ public class HomeTest {
 
     @Test(testName = "IN-7")
     public void allTopics(){
-        driver.get("https://interview-prep-test.herokuapp.com/");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Username']")).sendKeys("test@yahoo.com");
-        driver.findElement(By.xpath("//input[@placeholder='Enter Password']")).sendKeys("test123");
-        driver.findElement(By.xpath("//button[@type='submit']")).click();
 
         driver.findElement(By.xpath("//button[@class='btn btn-light mb-2 border shadow-lg rounded']")).click();
 
